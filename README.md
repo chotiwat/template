@@ -1,7 +1,7 @@
 template
 ========
 
-Template is a thin wrapper on `html/template`, the golang templating engine. The primary usecase for the utility is to dynamically modify config templates.
+Template is a thin wrapper on `text/template`, the golang templating engine. The primary usecase for the utility is to dynamically modify config templates.
 
 ## Usage
 
