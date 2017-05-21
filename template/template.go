@@ -8,7 +8,7 @@ import (
 	"strings"
 	"time"
 
-	htmltemplate "html/template"
+	texttemplate "text/template"
 )
 
 // New creates a new template.
@@ -92,15 +92,15 @@ func (t *Template) Env(key string, defaults ...string) string {
 
 // Process processes the template.
 func (t *Template) Process(dst io.Writer) error {
-	temp, err := htmltemplate.New("").Funcs(t.helpers()).Parse(t.body)
+	temp, err := texttemplate.New("").Funcs(t.helpers()).Parse(t.body)
 	if err != nil {
 		return err
 	}
 	return temp.Execute(dst, t)
 }
 
-func (t *Template) helpers() htmltemplate.FuncMap {
-	return htmltemplate.FuncMap{
+func (t *Template) helpers() texttemplate.FuncMap {
+	return texttemplate.FuncMap{
 		"unix": func(t time.Time) string {
 			return fmt.Sprintf("%d", t.Unix())
 		},
