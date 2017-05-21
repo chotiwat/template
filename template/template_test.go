@@ -73,7 +73,15 @@ func TestTemplateEnv(t *testing.T) {
 }
 
 func TestTemplateFile(t *testing.T) {
+	assert := assert.New(t)
 
+	test := `{{ .File "testdata/inline_file" }}`
+	temp := New().WithBody(test)
+
+	buffer := bytes.NewBuffer(nil)
+	err := temp.Process(buffer)
+	assert.Nil(err)
+	assert.Equal("this is a test", buffer.String())
 }
 
 func TestTemplateViewFuncs(t *testing.T) {
