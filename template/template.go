@@ -1,6 +1,9 @@
 package template
 
 import (
+	"crypto/sha1"
+	"crypto/sha256"
+	"crypto/sha512"
 	"fmt"
 	"io"
 	"io/ioutil"
@@ -279,6 +282,22 @@ func (t *Template) funcMap() texttemplate.FuncMap {
 		},
 		"query": func(name string, v *url.URL) string {
 			return v.Query().Get(name)
+		},
+
+		"sha1": func(v string) string {
+			h := sha1.New()
+			io.WriteString(h, v)
+			return fmt.Sprintf("%x", h.Sum(nil))
+		},
+		"sha256": func(v string) string {
+			h := sha256.New()
+			io.WriteString(h, v)
+			return fmt.Sprintf("%x", h.Sum(nil))
+		},
+		"sha512": func(v string) string {
+			h := sha512.New()
+			io.WriteString(h, v)
+			return fmt.Sprintf("%x", h.Sum(nil))
 		},
 	}
 }
