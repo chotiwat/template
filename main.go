@@ -2,6 +2,7 @@ package main
 
 import (
 	"flag"
+	"fmt"
 	"log"
 	"os"
 
@@ -11,7 +12,14 @@ import (
 
 	"strconv"
 
+	"runtime"
+
 	"github.com/blendlabs/template/template"
+)
+
+var (
+	// Version is the app version.
+	Version string
 )
 
 // Variables are a list of commandline variables.
@@ -84,10 +92,27 @@ func main() {
 	var help bool
 	flag.BoolVar(&help, "help", false, "Shows this usage message")
 
+	var versionFlag bool
+	flag.BoolVar(&versionFlag, "version", false, "Shows the app version")
+
+	flag.Usage = func() {
+		fmt.Fprintf(os.Stderr, "%s version %s\n", os.Args[0], Version)
+		fmt.Fprintln(os.Stderr, "usage:")
+		flag.PrintDefaults()
+	}
+
 	flag.Parse()
 
 	if help {
 		flag.Usage()
+		os.Exit(0)
+	}
+
+	if versionFlag {
+		if len(Version) == 0 {
+			Version = "master"
+		}
+		fmt.Fprintf(os.Stdout, "%s version %s %s/%s\n", os.Args[0], Version, runtime.GOOS, runtime.GOARCH)
 		os.Exit(0)
 	}
 
