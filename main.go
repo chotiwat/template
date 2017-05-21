@@ -7,6 +7,8 @@ import (
 
 	"strings"
 
+	"io/ioutil"
+
 	"github.com/blendlabs/template/template"
 )
 
@@ -45,14 +47,22 @@ func main() {
 
 	flag.Parse()
 
-	if len(file) == 0 {
-		flag.Usage()
-		os.Exit(1)
-	}
+	var temp *template.Template
+	var err error
+	if len(file) > 0 {
+		temp, err = template.NewFromFile(file)
+		if err != nil {
+			log.Fatal(err)
+		}
+	} else {
+		temp = template.New()
 
-	temp, err := template.NewFromFile(file)
-	if err != nil {
-		log.Fatal(err)
+		var contents []byte
+		contents, err = ioutil.ReadAll(os.Stdin)
+		if err != nil {
+			log.Fatal(err)
+		}
+		temp = temp.WithBody(string(contents))
 	}
 
 	vars := variables.Values()

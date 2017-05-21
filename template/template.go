@@ -65,18 +65,28 @@ func (t *Template) HasVar(key string) bool {
 }
 
 // Var returns the value of a variable, or panics if the variable is not set.
-func (t *Template) Var(key string) interface{} {
+func (t *Template) Var(key string, defaults ...interface{}) interface{} {
 	if value, hasVar := t.vars[key]; hasVar {
 		return value
 	}
+
+	if len(defaults) > 0 {
+		return defaults[0]
+	}
+
 	panic(fmt.Sprintf("template variable `%s` is unset, cannot continue", key))
 }
 
 // Env returns an environment variable.
-func (t *Template) Env(key string) string {
+func (t *Template) Env(key string, defaults ...string) string {
 	if value, hasVar := t.env[key]; hasVar {
 		return value
 	}
+
+	if len(defaults) > 0 {
+		return defaults[0]
+	}
+
 	panic(fmt.Sprintf("template env variable `%s` is unset, cannot continue", key))
 }
 
