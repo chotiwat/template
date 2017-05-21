@@ -9,6 +9,8 @@ import (
 
 	"io/ioutil"
 
+	"strconv"
+
 	"github.com/blendlabs/template/template"
 )
 
@@ -38,9 +40,43 @@ func (v *Variables) Values() (values map[string]string) {
 	return
 }
 
+// Numbers represent float typed variables.
+type Numbers []string
+
+// Set sets a variable.
+func (n *Numbers) Set(value string) error {
+	*n = append(*n, value)
+	return nil
+}
+
+func (n *Numbers) String() string {
+	return "Number variable values to set in the template"
+}
+
+// Values returns the map of values.
+func (n *Numbers) Values() (values map[string]interface{}, err error) {
+	values = map[string]interface{}{}
+
+	var value float64
+	for _, val := range *n {
+		pieces := strings.SplitN(val, "=", 2)
+		if len(pieces) > 1 {
+			value, err = strconv.ParseFloat(pieces[1], 64)
+			if err != nil {
+				return
+			}
+			values[pieces[0]] = value
+		}
+	}
+	return
+}
+
 func main() {
 	var variables Variables
 	flag.Var(&variables, "var", "Variables in the form --var=foo=bar")
+
+	var numbers Numbers
+	flag.Var(&numbers, "num", "Number variables in the form --num=foo=3.14")
 
 	var file string
 	flag.StringVar(&file, "f", "", "The file to process")
@@ -76,6 +112,16 @@ func main() {
 	vars := variables.Values()
 	if len(vars) > 0 {
 		for key, value := range vars {
+			temp = temp.WithVar(key, value)
+		}
+	}
+
+	numVars, err := numbers.Values()
+	if err != nil {
+		log.Fatal(err)
+	}
+	if len(numVars) > 0 {
+		for key, value := range numVars {
 			temp = temp.WithVar(key, value)
 		}
 	}

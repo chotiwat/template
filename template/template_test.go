@@ -56,6 +56,17 @@ func TestTemplateVar(t *testing.T) {
 	assert.Equal("bar", buffer.String())
 }
 
+func TestTemplateVarMissing(t *testing.T) {
+	assert := assert.New(t)
+
+	test := `{{ .Var "baz" }}`
+	temp := New().WithBody(test).WithVar("foo", "bar")
+
+	buffer := bytes.NewBuffer(nil)
+	err := temp.Process(buffer)
+	assert.NotNil(err)
+}
+
 func TestTemplateEnv(t *testing.T) {
 	assert := assert.New(t)
 
@@ -70,6 +81,19 @@ func TestTemplateEnv(t *testing.T) {
 	err := temp.Process(buffer)
 	assert.Nil(err)
 	assert.Equal("bar", buffer.String())
+}
+
+func TestTemplateEnvMissing(t *testing.T) {
+	assert := assert.New(t)
+
+	varName := UUIDv4().String()
+
+	test := fmt.Sprintf(`{{ .Env "%s" }}`, varName)
+	temp := New().WithBody(test)
+
+	buffer := bytes.NewBuffer(nil)
+	err := temp.Process(buffer)
+	assert.NotNil(err)
 }
 
 func TestTemplateFile(t *testing.T) {
@@ -87,7 +111,7 @@ func TestTemplateFile(t *testing.T) {
 func TestTemplateViewFuncTimeUnix(t *testing.T) {
 	assert := assert.New(t)
 
-	test := `{{ .Var "now" | time_unix }}`
+	test := `{{ .Var "now" | unix }}`
 	temp := New().WithBody(test).WithVar("now", time.Date(2017, 05, 20, 21, 00, 00, 00, time.UTC))
 
 	buffer := bytes.NewBuffer(nil)
@@ -99,7 +123,7 @@ func TestTemplateViewFuncTimeUnix(t *testing.T) {
 func TestTemplateHelpersUTCNow(t *testing.T) {
 	assert := assert.New(t)
 
-	test := `{{ .Helpers.UTCNow | time_unix }}`
+	test := `{{ .Helpers.UTCNow | unix }}`
 	temp := New().WithBody(test)
 
 	buffer := bytes.NewBuffer(nil)
