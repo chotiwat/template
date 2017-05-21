@@ -7,7 +7,7 @@ import (
 
 	"strings"
 
-	"github.com/blendlabs/template"
+	"github.com/blendlabs/template/template"
 )
 
 // Variables are a list of commandline variables.
