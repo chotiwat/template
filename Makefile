@@ -16,16 +16,17 @@ SHASUMCMD := $(shell command -v sha1sum || command -v shasum; 2> /dev/null)
 
 .PHONY: build
 build: 
-	mkdir -p ./build/dist/
-	GOOS=darwin GOARCH=amd64 go build -o .build/dist/darwin/amd64/template -ldflags "-X blendlabs.com/template.Version=${VERSION} -X blendlabs.com/template.GitVersion=${GIT_SHA}" main.go
-	GOOS=linux GOARCH=amd64 go build -o .build/dist/linux/amd64/template -ldflags "-X blendlabs.com/template.Version=${VERSION} -X blendlabs.com/template.GitVersion=${GIT_SHA}" main.go
-	(${SHASUMCMD} ./build/dist/darwin/amd64/template | cut -d' ' -f1) > ./build/dist/darwin/amd64/template.sha1
-	(${SHASUMCMD} ./build/dist/linux/amd64/template | cut -d' ' -f1) > ./build/dist/linux/amd64/template.sha1
+	mkdir -p ./build/dist
+	GOOS=darwin GOARCH=amd64 go build -o ./build/dist/template-darwin-amd64 -ldflags "-X blendlabs.com/template.Version=${VERSION} -X blendlabs.com/template.GitVersion=${GIT_SHA}" main.go
+	GOOS=linux GOARCH=amd64 go build -o ./build/dist/template-linux-amd64  -ldflags "-X blendlabs.com/template.Version=${VERSION} -X blendlabs.com/template.GitVersion=${GIT_SHA}" main.go
+	(${SHASUMCMD} ./build/dist/template-darwin-amd64 | cut -d' ' -f1) > ./build/dist/template-darwin-amd64.sha1
+	(${SHASUMCMD} ./build/dist/template-linux-amd64 | cut -d' ' -f1) > ./build/dist/template-linux-amd64.sha1
 
 
 .PHONY: release-tag
 release-tag:
 	@git tag ${TEMPLATE_RELEASE_VERSION}
+	@git push --tags
 
 .PHONY: release-deps
 release-deps:
