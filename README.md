@@ -33,11 +33,13 @@ metadata:
   ref: abcdef
 ```
 
+You can alternately read from `stdin` by omitting the `-f` flag.
+
 ## Commandline Flag Reference
 
 ### `-f <TEMPLATE PATH>`
 
-The `-f` flag specifies an input file.
+The `-f` flag specifies an input file. If it is not present, `template` will read from `stdin`.
 
 ### `-var <KEY>=<VALUE>`
 
