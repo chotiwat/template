@@ -9,7 +9,7 @@ import (
 	"time"
 
 	"encoding/base64"
-	htmltemplate "html/template"
+	texttemplate "text/template"
 )
 
 // New creates a new template.
@@ -72,38 +72,35 @@ func (t *Template) HasVar(key string) bool {
 }
 
 // Var returns the value of a variable, or panics if the variable is not set.
-func (t *Template) Var(key string, defaults ...interface{}) interface{} {
+func (t *Template) Var(key string, defaults ...interface{}) (interface{}, error) {
 	if value, hasVar := t.vars[key]; hasVar {
-		return value
+		return value, nil
 	}
 
 	if len(defaults) > 0 {
-		return defaults[0]
+		return defaults[0], nil
 	}
 
-	panic(fmt.Sprintf("template variable `%s` is unset, cannot continue", key))
+	return nil, fmt.Errorf("template variable `%s` is unset, cannot continue", key)
 }
 
 // Env returns an environment variable.
-func (t *Template) Env(key string, defaults ...string) string {
+func (t *Template) Env(key string, defaults ...string) (string, error) {
 	if value, hasVar := t.env[key]; hasVar {
-		return value
+		return value, nil
 	}
 
 	if len(defaults) > 0 {
-		return defaults[0]
+		return defaults[0], nil
 	}
 
-	panic(fmt.Sprintf("template env variable `%s` is unset, cannot continue", key))
+	return "", fmt.Errorf("template env variable `%s` is unset, cannot continue", key)
 }
 
 // File returns the contents of a file.
-func (t *Template) File(path string) string {
+func (t *Template) File(path string) (string, error) {
 	contents, err := ioutil.ReadFile(path)
-	if err != nil {
-		panic(err)
-	}
-	return string(contents)
+	return string(contents), err
 }
 
 // Helpers returns the helpers object.
@@ -113,16 +110,15 @@ func (t *Template) Helpers() *Helpers {
 
 // Process processes the template.
 func (t *Template) Process(dst io.Writer) error {
-	temp, err := htmltemplate.New("").Funcs(t.funcMap()).Parse(t.body)
+	temp, err := texttemplate.New("").Funcs(t.funcMap()).Parse(t.body)
 	if err != nil {
 		return err
 	}
 	return temp.Execute(dst, t)
 }
 
-func (t *Template) funcMap() htmltemplate.FuncMap {
-	return htmltemplate.FuncMap{
-
+func (t *Template) funcMap() texttemplate.FuncMap {
+	return texttemplate.FuncMap{
 		"time_unix": func(t time.Time) string {
 			return fmt.Sprintf("%d", t.Unix())
 		},

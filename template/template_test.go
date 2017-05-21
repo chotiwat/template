@@ -84,7 +84,7 @@ func TestTemplateFile(t *testing.T) {
 	assert.Equal("this is a test", buffer.String())
 }
 
-func TestTemplateViewFuncs(t *testing.T) {
+func TestTemplateViewFuncTimeUnix(t *testing.T) {
 	assert := assert.New(t)
 
 	test := `{{ .Var "now" | time_unix }}`

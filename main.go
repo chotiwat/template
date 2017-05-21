@@ -45,7 +45,15 @@ func main() {
 	var file string
 	flag.StringVar(&file, "f", "", "The file to process")
 
+	var help bool
+	flag.BoolVar(&help, "help", false, "Shows this usage message")
+
 	flag.Parse()
+
+	if help {
+		flag.Usage()
+		os.Exit(0)
+	}
 
 	var temp *template.Template
 	var err error

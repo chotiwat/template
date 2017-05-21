@@ -1,7 +1,7 @@
 template
 ========
 
-Template is a thin wrapper on `html/template`, the golang templating engine. The primary usecase for the utility is to dynamically modify config templates.
+Template is a thin wrapper on `text/template`, the golang templating engine. The primary usecase for the utility is to dynamically modify config templates.
 
 ## Usage
 
@@ -58,8 +58,10 @@ Var will return a variable as set by the commandline. It takes the variable name
 With a default:
 
 ```go
-{{ .Var "<var name>" "<default value>" }}
+{{ .Var "<var name>" <default value> }}
 ```
+
+Note: `Var` differs from `Env` in that var values can be any type, not just strings. 
 
 ### `.Env`
 
@@ -74,3 +76,15 @@ With a default:
 ```go
 {{ .Env "<var name>" "<default value>" }}
 ```
+
+### `.File`
+
+File will return the contents of a given file and inline those contents into the config. Note; the contents of this file will *not* be processed by the template interpreter, they will appear in the final output as they did on disk.
+
+```go
+{{ .File "<file path>" }}
+```
+
+## `texttemplate` Reference
+
+More information about the `texttemplate` language can be found here: [text template](https://golang.org/pkg/text/template/)
