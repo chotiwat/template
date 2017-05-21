@@ -13,6 +13,7 @@ import (
 
 	"encoding/base64"
 	"net/url"
+	"regexp"
 	"strconv"
 	texttemplate "text/template"
 )
@@ -139,6 +140,10 @@ func (t *Template) Process(dst io.Writer) error {
 
 func (t *Template) funcMap() texttemplate.FuncMap {
 	return texttemplate.FuncMap{
+		"string": func(v interface{}) string {
+			return fmt.Sprintf("%v", v)
+		},
+
 		"unix": func(t time.Time) string {
 			return fmt.Sprintf("%d", t.Unix())
 		},
@@ -202,11 +207,14 @@ func (t *Template) funcMap() texttemplate.FuncMap {
 			return int(time.Duration(t.Nanosecond()) / time.Millisecond)
 		},
 
-		"float64": func(v string) (float64, error) {
+		"float": func(v string) (float64, error) {
 			return strconv.ParseFloat(v, 64)
 		},
 		"money": func(d float64) string {
 			return fmt.Sprintf("$%0.2f", d)
+		},
+		"pct": func(d float64) string {
+			return fmt.Sprintf("%0.2f%%", d*100)
 		},
 
 		"base64": func(v string) string {
@@ -233,6 +241,40 @@ func (t *Template) funcMap() texttemplate.FuncMap {
 		"trim": func(v string) string {
 			return strings.TrimSpace(v)
 		},
+		"prefix": func(pref, v string) string {
+			return pref + v
+		},
+		"suffix": func(suf, v string) string {
+			return v + suf
+		},
+
+		"split": func(sep, v string) []string {
+			return strings.Split(v, sep)
+		},
+		"slice": func(from, to int, v []string) []string {
+			return v[from:to]
+		},
+		"first": func(v []string) string {
+			if len(v) > 0 {
+				return v[0]
+			}
+			return ""
+		},
+		"at": func(index int, v []string) string {
+			if len(v) > index {
+				return v[index]
+			}
+			return ""
+		},
+		"last": func(v []string) string {
+			if len(v) > 0 {
+				return v[len(v)-1]
+			}
+			return ""
+		},
+		"join": func(sep string, v []string) string {
+			return strings.Join(v, sep)
+		},
 
 		// string tests
 		"has_suffix": func(suffix, v string) bool {
@@ -241,8 +283,11 @@ func (t *Template) funcMap() texttemplate.FuncMap {
 		"has_prefix": func(prefix, v string) bool {
 			return strings.HasPrefix(v, prefix)
 		},
-		"contains": func(v, substr string) bool {
+		"contains": func(substr, v string) bool {
 			return strings.Contains(v, substr)
+		},
+		"matches": func(expr, v string) (bool, error) {
+			return regexp.MatchString(expr, v)
 		},
 
 		// url transforms and helpers
