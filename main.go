@@ -95,10 +95,10 @@ func loadVarsFile(path string) (map[string]interface{}, error) {
 
 func main() {
 	var templateFile string
-	flag.StringVar(&templateFile, "f", "", "The file to process")
+	flag.StringVar(&templateFile, "f", "", "Template file to process; if unset, will read from <stdin>")
 
 	var varsFile string
-	flag.StringVar(&varsFile, "v", "", "The vars file to process")
+	flag.StringVar(&varsFile, "v", "", "Vars file to process")
 
 	var variables Variables
 	flag.Var(&variables, "var", "Variables in the form --var=foo=bar")
