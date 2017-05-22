@@ -45,6 +45,10 @@ The `-f` flag specifies an input file. If it is not present, `template` will rea
 
 The `-var` flag specifies a variable for the template.
 
+### `-num <KEY>=<VALUE>`
+
+The `-num` flag specifies a numeric variable for the template. It is effectively a shorctut for `.Var "<key>" | float`.
+
 ## Template Function Reference
 
 ### `.Var`
@@ -61,7 +65,7 @@ With a default:
 {{ .Var "<var name>" <default value> }}
 ```
 
-Note: `Var` differs from `Env` in that var values can be any type, not just strings. 
+Note: `Var` differs from `Env` in that var values can be any type, not just strings.
 
 ### `.Env`
 
