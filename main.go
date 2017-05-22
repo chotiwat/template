@@ -15,6 +15,7 @@ import (
 	"runtime"
 
 	"github.com/blendlabs/template/template"
+	"gopkg.in/yaml.v2"
 )
 
 var (
@@ -79,15 +80,31 @@ func (n *Numbers) Values() (values map[string]interface{}, err error) {
 	return
 }
 
+func loadVarsFile(path string) (map[string]interface{}, error) {
+	contents, err := ioutil.ReadFile(path)
+	if err != nil {
+		return nil, err
+	}
+	output := map[string]interface{}{}
+	err = yaml.Unmarshal(contents, &output)
+	if err != nil {
+		return nil, err
+	}
+	return output, nil
+}
+
 func main() {
+	var templateFile string
+	flag.StringVar(&templateFile, "f", "", "The file to process")
+
+	var varsFile string
+	flag.StringVar(&varsFile, "v", "", "The vars file to process")
+
 	var variables Variables
 	flag.Var(&variables, "var", "Variables in the form --var=foo=bar")
 
 	var numbers Numbers
 	flag.Var(&numbers, "num", "Number variables in the form --num=foo=3.14")
-
-	var file string
-	flag.StringVar(&file, "f", "", "The file to process")
 
 	var help bool
 	flag.BoolVar(&help, "help", false, "Shows this usage message")
@@ -118,8 +135,8 @@ func main() {
 
 	var temp *template.Template
 	var err error
-	if len(file) > 0 {
-		temp, err = template.NewFromFile(file)
+	if len(templateFile) > 0 {
+		temp, err = template.NewFromFile(templateFile)
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -132,6 +149,16 @@ func main() {
 			log.Fatal(err)
 		}
 		temp = temp.WithBody(string(contents))
+	}
+
+	if len(varsFile) > 0 {
+		vars, err := loadVarsFile(varsFile)
+		if err != nil {
+			log.Fatal(err)
+		}
+		for key, value := range vars {
+			temp = temp.WithVar(key, value)
+		}
 	}
 
 	vars := variables.Values()
