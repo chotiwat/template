@@ -45,7 +45,7 @@ The `-f` flag specifies an input file. If it is not present, `template` will rea
 
 The `-var` flag specifies a variable for the template.
 
-## Template Helper Reference
+## Template Function Reference
 
 ### `.Var`
 
@@ -85,6 +85,10 @@ File will return the contents of a given file and inline those contents into the
 {{ .File "<file path>" }}
 ```
 
-## `texttemplate` Reference
+## Template pipeline helpers
 
-More information about the `texttemplate` language can be found here: [text template](https://golang.org/pkg/text/template/)
+Template ships with a number of pipeline helpers that can be used with the output of `.Var`, `.Env` and even `.File`.
+
+## `text/template` Reference
+
+More information about the `text/template` template language can be found here: [text template](https://golang.org/pkg/text/template/)
