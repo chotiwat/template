@@ -83,6 +83,36 @@ func TestTemplateEnv(t *testing.T) {
 	assert.Equal("bar", buffer.String())
 }
 
+func TestTemplateHasEnv(t *testing.T) {
+	assert := assert.New(t)
+
+	varName := UUIDv4().String()
+	os.Setenv(varName, "bar")
+	defer os.Unsetenv(varName)
+
+	test := fmt.Sprintf(`{{ if .HasEnv "%s" }}yep{{end}}`, varName)
+	temp := New().WithBody(test)
+
+	buffer := bytes.NewBuffer(nil)
+	err := temp.Process(buffer)
+	assert.Nil(err)
+	assert.Equal("yep", buffer.String())
+}
+
+func TestTemplateHasEnvFalsey(t *testing.T) {
+	assert := assert.New(t)
+
+	varName := UUIDv4().String()
+
+	test := fmt.Sprintf(`{{ if .HasEnv "%s" }}yep{{else}}nope{{end}}`, varName)
+	temp := New().WithBody(test)
+
+	buffer := bytes.NewBuffer(nil)
+	err := temp.Process(buffer)
+	assert.Nil(err)
+	assert.Equal("nope", buffer.String())
+}
+
 func TestTemplateEnvMissing(t *testing.T) {
 	assert := assert.New(t)
 
@@ -106,6 +136,32 @@ func TestTemplateFile(t *testing.T) {
 	err := temp.Process(buffer)
 	assert.Nil(err)
 	assert.Equal("this is a test", buffer.String())
+}
+
+func TestTemplateHasFile(t *testing.T) {
+	assert := assert.New(t)
+
+	test := `{{ if .HasFile "testdata/inline_file" }}yep{{end}}`
+	temp := New().WithBody(test)
+
+	buffer := bytes.NewBuffer(nil)
+	err := temp.Process(buffer)
+	assert.Nil(err)
+	assert.Equal("yep", buffer.String())
+}
+
+func TestTemplateHasFileFalsey(t *testing.T) {
+	assert := assert.New(t)
+
+	fileName := UUIDv4().String()
+
+	test := fmt.Sprintf(`{{ if .HasFile "testdata/%s" }}yep{{else}}nope{{end}}`, fileName)
+	temp := New().WithBody(test)
+
+	buffer := bytes.NewBuffer(nil)
+	err := temp.Process(buffer)
+	assert.Nil(err)
+	assert.Equal("nope", buffer.String())
 }
 
 func TestTemplateViewFuncTimeUnix(t *testing.T) {

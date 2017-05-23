@@ -119,10 +119,22 @@ func (t *Template) Env(key string, defaults ...string) (string, error) {
 	return "", fmt.Errorf("template env variable `%s` is unset and no default is provided", key)
 }
 
+// HasEnv returns if an env var is set.
+func (t *Template) HasEnv(key string) bool {
+	_, hasKey := t.env[key]
+	return hasKey
+}
+
 // File returns the contents of a file.
 func (t *Template) File(path string) (string, error) {
 	contents, err := ioutil.ReadFile(path)
 	return string(contents), err
+}
+
+// HasFile returns if a file exists.
+func (t *Template) HasFile(path string) bool {
+	_, err := os.Stat(path)
+	return err == nil
 }
 
 // Helpers returns the helpers object.
