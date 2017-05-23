@@ -454,3 +454,36 @@ func TestTemplateViewFuncMatches(t *testing.T) {
 	assert.Nil(err)
 	assert.Equal("nope", buffer.String())
 }
+
+func TestTemplateViewFuncSha1(t *testing.T) {
+	assert := assert.New(t)
+
+	test := `{{ .Var "foo" | sha1 }}`
+	temp := New().WithBody(test).WithVar("foo", "this is only a test")
+	buffer := bytes.NewBuffer(nil)
+	err := temp.Process(buffer)
+	assert.Nil(err)
+	assert.Equal("e7ee879d16c08f616c32e5bbe2253bdba18cf003", buffer.String())
+}
+
+func TestTemplateViewFuncSha256(t *testing.T) {
+	assert := assert.New(t)
+
+	test := `{{ .Var "foo" | sha256 }}`
+	temp := New().WithBody(test).WithVar("foo", "this is only a test")
+	buffer := bytes.NewBuffer(nil)
+	err := temp.Process(buffer)
+	assert.Nil(err)
+	assert.Equal("1661186b8e38e79f434e4549a2d53f84716cfff7c45d334bbc67c9d41d1e3be6", buffer.String())
+}
+
+func TestTemplateViewFuncSha512(t *testing.T) {
+	assert := assert.New(t)
+
+	test := `{{ .Var "foo" | sha512 }}`
+	temp := New().WithBody(test).WithVar("foo", "this is only a test")
+	buffer := bytes.NewBuffer(nil)
+	err := temp.Process(buffer)
+	assert.Nil(err)
+	assert.Equal("819bf8f4c3c5508a061d0637d09858cf098ef8ef7cafa312d07fca8480703eccf1a00b24b8915e24f926a8106331d7bc064e63c04262dbed65e05b28e208e53e", buffer.String())
+}
