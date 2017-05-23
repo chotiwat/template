@@ -147,3 +147,254 @@ func TestTemplateHelpersCreateKey(t *testing.T) {
 
 	assert.True(len(buffer.String()) > 64)
 }
+
+func TestTemplateViewFuncString(t *testing.T) {
+	assert := assert.New(t)
+
+	test := `{{ .Var "foo" | string }}`
+	temp := New().WithBody(test).WithVar("foo", 123)
+
+	buffer := bytes.NewBuffer(nil)
+	err := temp.Process(buffer)
+	assert.Nil(err)
+	assert.Equal("123", buffer.String())
+}
+
+func TestTemplateViewFuncTime(t *testing.T) {
+	assert := assert.New(t)
+
+	test := `{{ .Var "foo" | time "2006/01/02" | day }}`
+	temp := New().WithBody(test).WithVar("foo", "2017/05/30")
+
+	buffer := bytes.NewBuffer(nil)
+	err := temp.Process(buffer)
+	assert.Nil(err)
+	assert.Equal("30", buffer.String())
+}
+func TestTemplateViewFuncTimeFromUnix(t *testing.T) {
+	assert := assert.New(t)
+
+	test := `{{ .Var "foo" | time_unix | year }}`
+	temp := New().WithBody(test).WithVar("foo", time.Date(2017, 05, 20, 21, 00, 00, 00, time.UTC).Unix())
+
+	buffer := bytes.NewBuffer(nil)
+	err := temp.Process(buffer)
+	assert.Nil(err)
+	assert.Equal("2017", buffer.String())
+}
+
+func TestTemplateViewFuncTimeFromUnixString(t *testing.T) {
+	assert := assert.New(t)
+
+	test := `{{ .Var "foo" | string | int64 | time_unix | year }}`
+	temp := New().WithBody(test).WithVar("foo", time.Date(2017, 05, 20, 21, 00, 00, 00, time.UTC).Unix())
+
+	buffer := bytes.NewBuffer(nil)
+	err := temp.Process(buffer)
+	assert.Nil(err)
+	assert.Equal("2017", buffer.String())
+}
+
+func TestTemplateViewFuncBool(t *testing.T) {
+	assert := assert.New(t)
+
+	test := `{{ if .Var "foo" | bool }}yep{{end}}`
+	temp := New().WithBody(test).WithVar("foo", "true")
+
+	buffer := bytes.NewBuffer(nil)
+	err := temp.Process(buffer)
+	assert.Nil(err)
+	assert.Equal("yep", buffer.String())
+}
+
+func TestTemplateViewFuncInt(t *testing.T) {
+	assert := assert.New(t)
+
+	test := `{{ if .Var "foo" | int | eq 123 }}yep{{end}}`
+	temp := New().WithBody(test).WithVar("foo", "123")
+
+	buffer := bytes.NewBuffer(nil)
+	err := temp.Process(buffer)
+	assert.Nil(err)
+	assert.Equal("yep", buffer.String())
+}
+
+func TestTemplateViewFuncInt64(t *testing.T) {
+	assert := assert.New(t)
+
+	test := `{{ .Var "foo" | int64 }}`
+	temp := New().WithBody(test).WithVar("foo", fmt.Sprintf("%d", (1<<33)))
+
+	buffer := bytes.NewBuffer(nil)
+	err := temp.Process(buffer)
+	assert.Nil(err)
+	assert.Equal("8589934592", buffer.String())
+}
+
+func TestTemplateViewFuncFloat(t *testing.T) {
+	assert := assert.New(t)
+
+	test := `{{ .Var "foo" | float }}`
+	temp := New().WithBody(test).WithVar("foo", "3.14")
+
+	buffer := bytes.NewBuffer(nil)
+	err := temp.Process(buffer)
+	assert.Nil(err)
+	assert.Equal("3.14", buffer.String())
+}
+
+func TestTemplateViewFuncMoney(t *testing.T) {
+	assert := assert.New(t)
+
+	test := `{{ .Var "foo" | float | money }}`
+	temp := New().WithBody(test).WithVar("foo", "3.00")
+
+	buffer := bytes.NewBuffer(nil)
+	err := temp.Process(buffer)
+	assert.Nil(err)
+	assert.Equal("$3.00", buffer.String())
+}
+
+func TestTemplateViewFuncPct(t *testing.T) {
+	assert := assert.New(t)
+
+	test := `{{ .Var "foo" | float | pct }}`
+	temp := New().WithBody(test).WithVar("foo", "0.24")
+
+	buffer := bytes.NewBuffer(nil)
+	err := temp.Process(buffer)
+	assert.Nil(err)
+	assert.Equal("24.00%", buffer.String())
+}
+
+func TestTemplateViewFuncBase64(t *testing.T) {
+	assert := assert.New(t)
+
+	test := `{{ .Var "foo" | base64 }}`
+	temp := New().WithBody(test).WithVar("foo", "bar")
+
+	buffer := bytes.NewBuffer(nil)
+	err := temp.Process(buffer)
+	assert.Nil(err)
+	assert.Equal("YmFy", buffer.String())
+}
+
+func TestTemplateViewFuncBase64Decode(t *testing.T) {
+	assert := assert.New(t)
+
+	test := `{{ .Var "foo" | base64 | base64decode }}`
+	temp := New().WithBody(test).WithVar("foo", "bar")
+
+	buffer := bytes.NewBuffer(nil)
+	err := temp.Process(buffer)
+	assert.Nil(err)
+	assert.Equal("bar", buffer.String())
+}
+
+func TestTemplateViewFuncSplit(t *testing.T) {
+	assert := assert.New(t)
+
+	test := `{{ .Var "foo" | split "," }}`
+	temp := New().WithBody(test).WithVar("foo", "bar,baz,biz")
+	buffer := bytes.NewBuffer(nil)
+	err := temp.Process(buffer)
+	assert.Nil(err)
+	assert.Equal("[bar baz biz]", buffer.String())
+}
+
+func TestTemplateViewFuncFirst(t *testing.T) {
+	assert := assert.New(t)
+
+	test := `{{ .Var "foo" | split "," | first }}`
+	temp := New().WithBody(test).WithVar("foo", "bar,baz,biz")
+	buffer := bytes.NewBuffer(nil)
+	err := temp.Process(buffer)
+	assert.Nil(err)
+	assert.Equal("bar", buffer.String())
+}
+func TestTemplateViewFuncAt(t *testing.T) {
+	assert := assert.New(t)
+
+	test := `{{ .Var "foo" | split "," | at 1 }}`
+	temp := New().WithBody(test).WithVar("foo", "bar,baz,biz")
+	buffer := bytes.NewBuffer(nil)
+	err := temp.Process(buffer)
+	assert.Nil(err)
+	assert.Equal("baz", buffer.String())
+}
+
+func TestTemplateViewFuncLast(t *testing.T) {
+	assert := assert.New(t)
+
+	test := `{{ .Var "foo" | split "," | last }}`
+	temp := New().WithBody(test).WithVar("foo", "bar,baz,biz")
+	buffer := bytes.NewBuffer(nil)
+	err := temp.Process(buffer)
+	assert.Nil(err)
+	assert.Equal("biz", buffer.String())
+}
+
+func TestTemplateViewFuncSlice(t *testing.T) {
+	assert := assert.New(t)
+
+	test := `{{ .Var "foo" | split "," | slice 1 3 }}`
+	temp := New().WithBody(test).WithVar("foo", "bar,baz,biz,boof")
+	buffer := bytes.NewBuffer(nil)
+	err := temp.Process(buffer)
+	assert.Nil(err)
+	assert.Equal("[baz biz]", buffer.String())
+}
+func TestTemplateViewFuncJoin(t *testing.T) {
+	assert := assert.New(t)
+
+	test := `{{ .Var "foo" | split "," | slice 1 3 | join "/" }}`
+	temp := New().WithBody(test).WithVar("foo", "bar,baz,biz,boof")
+	buffer := bytes.NewBuffer(nil)
+	err := temp.Process(buffer)
+	assert.Nil(err)
+	assert.Equal("baz/biz", buffer.String())
+}
+
+func TestTemplateViewFuncHasPrefix(t *testing.T) {
+	assert := assert.New(t)
+
+	test := `{{ if .Var "foo" | has_prefix "http" }}yep{{end}}`
+	temp := New().WithBody(test).WithVar("foo", "http://foo.bar.com")
+	buffer := bytes.NewBuffer(nil)
+	err := temp.Process(buffer)
+	assert.Nil(err)
+	assert.Equal("yep", buffer.String())
+}
+
+func TestTemplateViewFuncHasSuffix(t *testing.T) {
+	assert := assert.New(t)
+
+	test := `{{ if .Var "foo" | has_suffix "com" }}yep{{end}}`
+	temp := New().WithBody(test).WithVar("foo", "http://foo.bar.com")
+	buffer := bytes.NewBuffer(nil)
+	err := temp.Process(buffer)
+	assert.Nil(err)
+	assert.Equal("yep", buffer.String())
+}
+
+func TestTemplateViewFuncContains(t *testing.T) {
+	assert := assert.New(t)
+
+	test := `{{ if .Var "foo" | contains "bar" }}yep{{end}}`
+	temp := New().WithBody(test).WithVar("foo", "http://foo.bar.com")
+	buffer := bytes.NewBuffer(nil)
+	err := temp.Process(buffer)
+	assert.Nil(err)
+	assert.Equal("yep", buffer.String())
+}
+
+func TestTemplateViewFuncMatches(t *testing.T) {
+	assert := assert.New(t)
+
+	test := `{{ if .Var "foo" | matches "^[a-z]+$" }}yep{{else}}nope{{end}}`
+	temp := New().WithBody(test).WithVar("foo", "http://foo.bar.com")
+	buffer := bytes.NewBuffer(nil)
+	err := temp.Process(buffer)
+	assert.Nil(err)
+	assert.Equal("nope", buffer.String())
+}

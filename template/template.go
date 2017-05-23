@@ -13,6 +13,7 @@ import (
 
 	"encoding/base64"
 	"net/url"
+	"reflect"
 	"regexp"
 	"strconv"
 	texttemplate "text/template"
@@ -165,25 +166,18 @@ func (t *Template) funcMap() texttemplate.FuncMap {
 		"month_day": func(t time.Time) string {
 			return t.Format("1/2")
 		},
-		"in": func(loc string, t time.Time) time.Time {
+		"in": func(loc string, t time.Time) (time.Time, error) {
 			location, err := time.LoadLocation(loc)
 			if err != nil {
-				panic(err)
+				return time.Time{}, err
 			}
-			return t.In(location)
+			return t.In(location), err
 		},
 		"time": func(format, v string) (time.Time, error) {
 			return time.Parse(format, v)
 		},
-		"time_unix": func(v string) (t time.Time, err error) {
-			var value int64
-			value, err = strconv.ParseInt(v, 10, 64)
-			if err != nil {
-				return
-			}
-
-			t = time.Unix(value, 0)
-			return
+		"time_unix": func(v int64) time.Time {
+			return time.Unix(v, 0)
 		},
 		"year": func(t time.Time) int {
 			return t.Year()
@@ -207,9 +201,30 @@ func (t *Template) funcMap() texttemplate.FuncMap {
 			return int(time.Duration(t.Nanosecond()) / time.Millisecond)
 		},
 
+		"bool": func(raw interface{}) (bool, error) {
+			v := fmt.Sprintf("%v", raw)
+			if len(v) == 0 {
+				return false, nil
+			}
+			switch strings.ToLower(v) {
+			case "true", "1", "yes":
+				return true, nil
+			case "false", "0", "no":
+				return false, nil
+			default:
+				return false, fmt.Errorf("invalid boolean value `%s`", v)
+			}
+		},
+		"int": func(v interface{}) (int, error) {
+			return strconv.Atoi(fmt.Sprintf("%v", v))
+		},
+		"int64": func(v interface{}) (int64, error) {
+			return strconv.ParseInt(fmt.Sprintf("%v", v), 10, 64)
+		},
 		"float": func(v string) (float64, error) {
 			return strconv.ParseFloat(v, 64)
 		},
+
 		"money": func(d float64) string {
 			return fmt.Sprintf("$%0.2f", d)
 		},
@@ -251,29 +266,59 @@ func (t *Template) funcMap() texttemplate.FuncMap {
 		"split": func(sep, v string) []string {
 			return strings.Split(v, sep)
 		},
-		"slice": func(from, to int, v []string) []string {
-			return v[from:to]
-		},
-		"first": func(v []string) string {
-			if len(v) > 0 {
-				return v[0]
+
+		"slice": func(from, to int, collection interface{}) (interface{}, error) {
+			value := reflect.ValueOf(collection)
+
+			if value.Type().Kind() != reflect.Slice {
+				return nil, fmt.Errorf("input must be a slice")
 			}
-			return ""
+
+			return value.Slice(from, to).Interface(), nil
 		},
-		"at": func(index int, v []string) string {
-			if len(v) > index {
-				return v[index]
+		"first": func(collection interface{}) (interface{}, error) {
+			value := reflect.ValueOf(collection)
+			if value.Type().Kind() != reflect.Slice {
+				return nil, fmt.Errorf("input must be a slice")
 			}
-			return ""
-		},
-		"last": func(v []string) string {
-			if len(v) > 0 {
-				return v[len(v)-1]
+			if value.Len() == 0 {
+				return nil, nil
 			}
-			return ""
+			return value.Index(0).Interface(), nil
 		},
-		"join": func(sep string, v []string) string {
-			return strings.Join(v, sep)
+		"at": func(index int, collection interface{}) (interface{}, error) {
+			value := reflect.ValueOf(collection)
+			if value.Type().Kind() != reflect.Slice {
+				return nil, fmt.Errorf("input must be a slice")
+			}
+			if value.Len() == 0 {
+				return nil, nil
+			}
+			return value.Index(index).Interface(), nil
+		},
+		"last": func(collection interface{}) (interface{}, error) {
+			value := reflect.ValueOf(collection)
+			if value.Type().Kind() != reflect.Slice {
+				return nil, fmt.Errorf("input must be a slice")
+			}
+			if value.Len() == 0 {
+				return nil, nil
+			}
+			return value.Index(value.Len() - 1).Interface(), nil
+		},
+		"join": func(sep string, collection interface{}) (string, error) {
+			value := reflect.ValueOf(collection)
+			if value.Type().Kind() != reflect.Slice {
+				return "", fmt.Errorf("input must be a slice")
+			}
+			if value.Len() == 0 {
+				return "", nil
+			}
+			values := make([]string, value.Len())
+			for i := 0; i < value.Len(); i++ {
+				values[i] = fmt.Sprintf("%v", value.Index(i).Interface())
+			}
+			return strings.Join(values, sep), nil
 		},
 
 		// string tests
