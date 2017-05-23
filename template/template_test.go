@@ -487,3 +487,47 @@ func TestTemplateViewFuncSha512(t *testing.T) {
 	assert.Nil(err)
 	assert.Equal("819bf8f4c3c5508a061d0637d09858cf098ef8ef7cafa312d07fca8480703eccf1a00b24b8915e24f926a8106331d7bc064e63c04262dbed65e05b28e208e53e", buffer.String())
 }
+
+func TestTemplateViewFuncSemverMajor(t *testing.T) {
+	assert := assert.New(t)
+
+	test := `{{ .Var "foo" | semver | major }}`
+	temp := New().WithBody(test).WithVar("foo", "1.2.3-beta1")
+	buffer := bytes.NewBuffer(nil)
+	err := temp.Process(buffer)
+	assert.Nil(err)
+	assert.Equal("1", buffer.String())
+}
+
+func TestTemplateViewFuncSemverMinor(t *testing.T) {
+	assert := assert.New(t)
+
+	test := `{{ .Var "foo" | semver | minor }}`
+	temp := New().WithBody(test).WithVar("foo", "1.2.3-beta1")
+	buffer := bytes.NewBuffer(nil)
+	err := temp.Process(buffer)
+	assert.Nil(err)
+	assert.Equal("2", buffer.String())
+}
+
+func TestTemplateViewFuncSemverPatch(t *testing.T) {
+	assert := assert.New(t)
+
+	test := `{{ .Var "foo" | semver | patch }}`
+	temp := New().WithBody(test).WithVar("foo", "1.2.3-beta1")
+	buffer := bytes.NewBuffer(nil)
+	err := temp.Process(buffer)
+	assert.Nil(err)
+	assert.Equal("3", buffer.String())
+}
+
+func TestTemplateViewFuncSemverPreRelease(t *testing.T) {
+	assert := assert.New(t)
+
+	test := `{{ .Var "foo" | semver | prerelease }}`
+	temp := New().WithBody(test).WithVar("foo", "1.2.3-beta1")
+	buffer := bytes.NewBuffer(nil)
+	err := temp.Process(buffer)
+	assert.Nil(err)
+	assert.Equal("beta1", buffer.String())
+}

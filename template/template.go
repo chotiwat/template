@@ -401,6 +401,22 @@ func (t *Template) funcMap() texttemplate.FuncMap {
 			io.WriteString(h, v)
 			return fmt.Sprintf("%x", h.Sum(nil))
 		},
+
+		"semver": func(v string) (*Semver, error) {
+			return NewSemver(v)
+		},
+		"major": func(v *Semver) int {
+			return int(v.Major)
+		},
+		"minor": func(v *Semver) int {
+			return int(v.Minor)
+		},
+		"patch": func(v *Semver) int {
+			return int(v.Patch)
+		},
+		"prerelease": func(v *Semver) string {
+			return string(v.PreRelease)
+		},
 	}
 }
 
