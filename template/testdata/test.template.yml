@@ -14,14 +14,14 @@ metadata:
   namespace: {{ .Var "namespace" $defaultNamespace }}
   labels:
     service: {{ .Var "name" }}
-    env: {{ $defaultServiceEnv }}
+    env: {{ .Env "SERVICE_ENV" "sandbox" }}
 spec:
   replicas: {{ .Var "replicas" $defaultReplicas }}
   template:
     metadata:
       labels:
         service: {{ .Var "name" }}
-        env: {{ $defaultServiceEnv }}
+        env: {{ .Env "SERVICE_ENV" "sandbox"  }}
     spec:
       containers:
       - name: {{ .Var "container-name" ( .Var "name" ) }}
