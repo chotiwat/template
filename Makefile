@@ -1,6 +1,6 @@
 all: build
 
-TEMPLATE_RELEASE_VERSION=v1.4.1
+TEMPLATE_RELEASE_VERSION=v1.4.2
 TEMPLATE_CI_VERSION=v1.5-beta
 GIT_SHA=$(shell git log --pretty=format:'%h' -n 1)
 
@@ -21,7 +21,6 @@ build:
 	GOOS=linux GOARCH=amd64 go build -o ./build/dist/template-linux-amd64  -ldflags "-X main.Version=${VERSION} -X blendlabs.com/template.GitVersion=${GIT_SHA}" main.go
 	(${SHASUMCMD} ./build/dist/template-darwin-amd64 | cut -d' ' -f1) > ./build/dist/template-darwin-amd64.sha1
 	(${SHASUMCMD} ./build/dist/template-linux-amd64 | cut -d' ' -f1) > ./build/dist/template-linux-amd64.sha1
-
 
 .PHONY: release-tag
 release-tag:
