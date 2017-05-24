@@ -102,6 +102,9 @@ func main() {
 	var varsFile string
 	flag.StringVar(&varsFile, "v", "", "Vars file to process")
 
+	var outFile string
+	flag.StringVar(&outFile, "o", "", "Output file")
+
 	var variables Variables
 	flag.Var(&variables, "var", "Variables in the form --var=foo=bar")
 
@@ -185,5 +188,17 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	buffer.WriteTo(os.Stdout)
+
+	if len(outFile) > 0 {
+		f, err := os.Create(outFile)
+		if err != nil {
+			log.Fatal(err)
+		}
+		_, err = buffer.WriteTo(f)
+		if err != nil {
+			log.Fatal(err)
+		}
+	} else {
+		buffer.WriteTo(os.Stdout)
+	}
 }

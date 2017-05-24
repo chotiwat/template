@@ -1,6 +1,6 @@
 all: build
 
-TEMPLATE_RELEASE_VERSION=v1.4
+TEMPLATE_RELEASE_VERSION=v1.4.1
 TEMPLATE_CI_VERSION=v1.5-beta
 GIT_SHA=$(shell git log --pretty=format:'%h' -n 1)
 
