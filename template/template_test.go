@@ -18,14 +18,14 @@ import (
 func TestTemplateFromFile(t *testing.T) {
 	assert := assert.New(t)
 
-	temp, err := NewFromFile("testdata/test.template")
+	temp, err := NewFromFile("testdata/test.template.yml")
 	assert.Nil(err)
 
 	temp = temp.
-		WithVar("service-name", "test-service").
-		WithVar("app-name", "test-service-app").
+		WithVar("name", "test-service").
 		WithVar("container-name", "nginx").
-		WithVar("container-image", "nginx:1.7.9")
+		WithVar("container-image", "nginx:1.7.9").
+		WithVar("container-port", "disabled")
 
 	buffer := bytes.NewBuffer(nil)
 	err = temp.Process(buffer)
@@ -34,14 +34,13 @@ func TestTemplateFromFile(t *testing.T) {
 	result := buffer.String()
 	assert.True(strings.Contains(result, "name: test-service"))
 	assert.True(strings.Contains(result, "replicas: 2"))
-	assert.True(strings.Contains(result, "app: test-service-app"))
-	assert.False(strings.Contains(result, "ports:"))
+	assert.False(strings.Contains(result, "containerPort:"))
 
 	temp = temp.WithVar("container-port", 80)
 	err = temp.Process(buffer)
 	assert.Nil(err)
 	result = buffer.String()
-	assert.True(strings.Contains(result, "containerPort: 80"))
+	assert.True(strings.Contains(result, "port: 80"))
 }
 
 func TestTemplateVar(t *testing.T) {

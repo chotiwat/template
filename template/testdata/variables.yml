@@ -1,0 +1,10 @@
+name: test-service
+fqdn: test.blend.com
+replicas: 2
+accessibility: external # (external, internal, cluster) (default: internal)
+
+env:
+  - name: PROVIDER_HOST
+    value: https://test.provider.com
+  - name: DATABASE_URL
+    value: "postgres://test-service:asecurepassword@test-service.rds.foosballs.com:5432/testservice"

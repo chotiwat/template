@@ -14,6 +14,8 @@ import (
 
 	"runtime"
 
+	"bytes"
+
 	"github.com/blendlabs/template/template"
 	"gopkg.in/yaml.v2"
 )
@@ -178,8 +180,10 @@ func main() {
 		}
 	}
 
-	err = temp.Process(os.Stdout)
+	buffer := bytes.NewBuffer(nil)
+	err = temp.Process(buffer)
 	if err != nil {
 		log.Fatal(err)
 	}
+	buffer.WriteTo(os.Stdout)
 }

@@ -1,0 +1,78 @@
+{{- $defaultNamespace := "blend" -}}
+{{- $defaultServiceEnv := "sandbox" -}}
+{{- $defaultCluster := ( .Env "CLUSTER_NAME" "sandbox.blend.com" ) -}}
+{{- $defaultRegistry := ( $defaultCluster | prefix "registry." ) -}}
+{{- $defaultFQDN := ( .Var "name" | suffix $defaultCluster ) -}}
+{{- $defaultAccessibility := "internal" -}}
+{{- $defaultReplicas := "2" -}}
+{{- $defaultContainerPort := 5000 -}}
+
+apiVersion: apps/v1beta1
+kind: Deployment
+metadata:
+  name: {{ .Var "name" }}
+  namespace: {{ .Var "namespace" $defaultNamespace }}
+  labels:
+    service: {{ .Var "name" }}
+    env: {{ $defaultServiceEnv }}
+spec:
+  replicas: {{ .Var "replicas" $defaultReplicas }}
+  template:
+    metadata:
+      labels:
+        service: {{ .Var "name" }}
+        env: {{ $defaultServiceEnv }}
+    spec:
+      containers:
+      - name: {{ .Var "container-name" ( .Var "name" ) }}
+        image: {{ .Var "container-image" ( $defaultRegistry | suffix ( .Var "name" ) ) }}
+        {{- if .HasVar "env" }}
+        env: 
+        {{- range $index, $var := ( .Var "env" ) }}
+          - name: {{ $var.name }}
+            value: {{ $var.value }}
+        {{- end }}
+        {{- end -}}
+        {{- if .Var "container-port" $defaultContainerPort | string | ne "disabled" }}
+        ports:
+        - containerPort: {{ .Var "container-port" $defaultContainerPort }} 
+        {{- end }}
+{{- if .Var "accessibility" $defaultAccessibility | ne "cluster" }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Var "name" }}
+  namespace: {{ .Var "namepsace" $defaultNamespace }} 
+  labels:
+    service: {{ .Var "name" }}
+    env: {{ .Env "SERVICE_ENV" $defaultServiceEnv }}
+spec:
+  selector:
+    service: {{ .Var "name" }}
+  type: NodePort 
+  ports:
+  - name: {{ .Var "name" }}
+    port: {{ .Var "container-port" $defaultContainerPort }}
+    protocol: {{ .Var "container-protocol" "tcp" | upper }}
+{{- end }}
+{{- if .Var "accessibility" $defaultAccessibility | eq "external" }}
+---
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: {{ .Var "name" }}
+  namespace: {{ .Var "namespace" $defaultNamespace }}
+  labels:
+    service: {{ .Var "name" }}
+    env: {{ .Env "SERVICE_ENV" $defaultServiceEnv }}
+spec:
+  rules:
+  - host: {{ .Var "fqdn" $defaultFQDN }}
+    http:
+      paths:
+      - path: /
+        backend:
+          serviceName: {{ .Var "name" }}
+          servicePort: {{ .Var "container-port" "5000" }}
+{{- end }}
