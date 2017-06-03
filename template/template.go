@@ -11,7 +11,10 @@ import (
 	"strings"
 	"time"
 
+	yaml "gopkg.in/yaml.v2"
+
 	"encoding/base64"
+	"encoding/json"
 	"net/url"
 	"reflect"
 	"regexp"
@@ -416,6 +419,30 @@ func (t *Template) funcMap() texttemplate.FuncMap {
 		},
 		"prerelease": func(v *Semver) string {
 			return string(v.PreRelease)
+		},
+
+		"yaml": func(v interface{}) (string, error) {
+			data, err := yaml.Marshal(v)
+			return string(data), err
+		},
+
+		"json": func(v interface{}) (string, error) {
+			data, err := json.Marshal(v)
+			return string(data), err
+		},
+		"indent": func(tabCount int, corpus string) string {
+			lines := strings.Split(corpus, "\n")
+			outputLines := make([]string, len(lines))
+
+			var tabs string
+			for i := 0; i < tabCount; i++ {
+				tabs = tabs + "\t"
+			}
+
+			for i := 0; i < len(lines); i++ {
+				outputLines[i] = tabs + lines[i]
+			}
+			return strings.Join(outputLines, "\n")
 		},
 	}
 }

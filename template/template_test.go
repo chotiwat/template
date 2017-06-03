@@ -530,3 +530,29 @@ func TestTemplateViewFuncSemverPreRelease(t *testing.T) {
 	assert.Nil(err)
 	assert.Equal("beta1", buffer.String())
 }
+
+type label struct {
+	Name string `yaml:"name"`
+	Vaue string `yaml:"value"`
+}
+
+func TestTemplateViewFuncYAML(t *testing.T) {
+	assert := assert.New(t)
+
+	test := `
+type: foo
+meta: 
+	name:
+	labels:
+{{ .Var "labels" | yaml | indent 1 }}
+`
+	temp := New().WithBody(test).WithVar("labels", []label{
+		{"foo", "bar"},
+		{"bar", "baz"},
+		{"moobar", "zoobar"},
+	})
+	buffer := bytes.NewBuffer(nil)
+	err := temp.Process(buffer)
+	assert.Nil(err)
+	assert.Equal("beta1", buffer.String())
+}
