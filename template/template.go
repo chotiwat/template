@@ -438,6 +438,7 @@ func (t *Template) baseFuncMap() texttemplate.FuncMap {
 			data, err := json.Marshal(v)
 			return string(data), err
 		},
+
 		"indent": func(tabCount int, corpus string) string {
 			lines := strings.Split(corpus, "\n")
 			outputLines := make([]string, len(lines))
@@ -449,6 +450,21 @@ func (t *Template) baseFuncMap() texttemplate.FuncMap {
 
 			for i := 0; i < len(lines); i++ {
 				outputLines[i] = tabs + lines[i]
+			}
+			return strings.Join(outputLines, "\n")
+		},
+
+		"indentSpaces": func(spaceCount int, corpus string) string {
+			lines := strings.Split(corpus, "\n")
+			outputLines := make([]string, len(lines))
+
+			var spaces string
+			for i := 0; i < spaceCount; i++ {
+				spaces = spaces + " "
+			}
+
+			for i := 0; i < len(lines); i++ {
+				outputLines[i] = spaces + lines[i]
 			}
 			return strings.Join(outputLines, "\n")
 		},
