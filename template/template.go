@@ -24,10 +24,12 @@ import (
 
 // New creates a new template.
 func New() *Template {
-	return &Template{
+	temp := &Template{
 		vars: map[string]interface{}{},
 		env:  parseEnvVars(os.Environ()),
 	}
+	temp.funcs = temp.baseFuncMap()
+	return temp
 }
 
 // NewFromFile creates a new template from a file.
@@ -51,6 +53,7 @@ type Template struct {
 	body    string
 	vars    map[string]interface{}
 	env     map[string]string
+	funcs   texttemplate.FuncMap
 	helpers Helpers
 }
 
@@ -147,14 +150,19 @@ func (t *Template) Helpers() *Helpers {
 
 // Process processes the template.
 func (t *Template) Process(dst io.Writer) error {
-	temp, err := texttemplate.New(t.Name()).Funcs(t.funcMap()).Parse(t.body)
+	temp, err := texttemplate.New(t.Name()).Funcs(t.ViewFuncs()).Parse(t.body)
 	if err != nil {
 		return err
 	}
 	return temp.Execute(dst, t)
 }
 
-func (t *Template) funcMap() texttemplate.FuncMap {
+// ViewFuncs returns the view funcs.
+func (t *Template) ViewFuncs() texttemplate.FuncMap {
+	return t.funcs
+}
+
+func (t *Template) baseFuncMap() texttemplate.FuncMap {
 	return texttemplate.FuncMap{
 		"string": func(v interface{}) string {
 			return fmt.Sprintf("%v", v)
