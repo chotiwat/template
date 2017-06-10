@@ -1,7 +1,7 @@
 all: build
 
-TEMPLATE_RELEASE_VERSION=v1.4.2
-TEMPLATE_CI_VERSION=v1.5-beta
+TEMPLATE_RELEASE_VERSION=v1.5
+TEMPLATE_CI_VERSION=v1.6-beta
 GIT_SHA=$(shell git log --pretty=format:'%h' -n 1)
 
 ifndef VERSION
