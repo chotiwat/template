@@ -25,6 +25,19 @@ var (
 	Version string
 )
 
+// Includes are a collection of template files to include as sub templates.
+type Includes []string
+
+// Set sets the value.
+func (v *Includes) Set(value string) error {
+	*v = append(*v, value)
+	return nil
+}
+
+func (v *Includes) String() string {
+	return "Files to include as sub templates"
+}
+
 // Variables are a list of commandline variables.
 type Variables []string
 
@@ -111,6 +124,9 @@ func main() {
 	var numbers Numbers
 	flag.Var(&numbers, "num", "Number variables in the form --num=foo=3.14")
 
+	var includes Includes
+	flag.Var(&includes, "include", "Files to include as sub templates")
+
 	var help bool
 	flag.BoolVar(&help, "help", false, "Shows this usage message")
 
@@ -154,6 +170,17 @@ func main() {
 			log.Fatal(err)
 		}
 		temp = temp.WithBody(string(contents))
+	}
+
+	if len(includes) > 0 {
+		for _, include := range includes {
+			var contents []byte
+			contents, err = ioutil.ReadFile(include)
+			if err != nil {
+				log.Fatal(err)
+			}
+			temp = temp.WithInclude(string(contents))
+		}
 	}
 
 	if len(varsFile) > 0 {
