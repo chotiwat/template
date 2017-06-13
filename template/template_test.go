@@ -43,6 +43,22 @@ func TestTemplateFromFile(t *testing.T) {
 	assert.True(strings.Contains(result, "port: 80"))
 }
 
+func TestTemplateInclude(t *testing.T) {
+	assert := assert.New(t)
+
+	main := `{{ template "test" . }}`
+	test := `{{ define "test" }}{{ .Var "foo" }}{{end}}`
+
+	buffer := bytes.NewBuffer(nil)
+	err := New().WithBody(main).WithInclude(test).WithVar("foo", "bar").Process(buffer)
+	assert.Nil(err)
+	assert.Equal("bar", buffer.String())
+
+	buffer = bytes.NewBuffer(nil)
+	err = New().WithBody(main).WithVar("foo", "bar").Process(buffer)
+	assert.NotNil(err)
+}
+
 func TestTemplateVar(t *testing.T) {
 	assert := assert.New(t)
 

@@ -49,12 +49,13 @@ func NewFromFile(filepath string) (*Template, error) {
 
 // Template is a wrapper for html.Template.
 type Template struct {
-	name    string
-	body    string
-	vars    map[string]interface{}
-	env     map[string]string
-	funcs   texttemplate.FuncMap
-	helpers Helpers
+	name     string
+	body     string
+	vars     map[string]interface{}
+	env      map[string]string
+	includes []string
+	funcs    texttemplate.FuncMap
+	helpers  Helpers
 }
 
 // WithName sets the template name.
@@ -74,6 +75,12 @@ func (t *Template) Name() string {
 // WithBody sets the template body and returns a reference to the template object.
 func (t *Template) WithBody(body string) *Template {
 	t.body = body
+	return t
+}
+
+// WithInclude includes a (sub) template into the rendering assets.
+func (t *Template) WithInclude(body string) *Template {
+	t.includes = append(t.includes, body)
 	return t
 }
 
@@ -150,11 +157,21 @@ func (t *Template) Helpers() *Helpers {
 
 // Process processes the template.
 func (t *Template) Process(dst io.Writer) error {
-	temp, err := texttemplate.New(t.Name()).Funcs(t.ViewFuncs()).Parse(t.body)
+	base := texttemplate.New(t.Name()).Funcs(t.ViewFuncs())
+
+	var err error
+	for _, include := range t.includes {
+		_, err = base.New(t.Name()).Parse(include)
+		if err != nil {
+			return err
+		}
+	}
+
+	final, err := base.New(t.Name()).Parse(t.body)
 	if err != nil {
 		return err
 	}
-	return temp.Execute(dst, t)
+	return final.Execute(dst, t)
 }
 
 // ViewFuncs returns the view funcs.
