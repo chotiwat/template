@@ -1,0 +1,5 @@
+{{ define "annotations" -}}
+annotations:
+  test-var: {{ .Var "test-var" }}
+  another: {{ .Var "another" }}
+{{- end }}

@@ -1,0 +1,12 @@
+{{ $annotations := template "annotations" . }}
+apiVersion: apps/v1beta1
+kind: Deployment
+metadata:
+  name: {{ .Var "name" }}
+  namespace: default
+  labels:
+    service: {{ .Var "name" }}
+    env: {{ .Env "SERVICE_ENV" "sandbox" }}
+{{ $annotations | indentSpaces 2 }}
+spec:
+  replicas: {{ .Var "replicas" "2" }}

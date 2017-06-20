@@ -110,7 +110,7 @@ func loadVarsFile(path string) (map[string]interface{}, error) {
 
 func main() {
 	var templateFile string
-	flag.StringVar(&templateFile, "f", "", "Template file to process; if unset, will read from <stdin>")
+	flag.StringVar(&templateFile, "f", "", "Template file to process; if \"-\", will read from os.Stdin")
 
 	var varsFile string
 	flag.StringVar(&varsFile, "v", "", "Vars file to process")
@@ -134,9 +134,16 @@ func main() {
 	flag.BoolVar(&versionFlag, "version", false, "Shows the app version")
 
 	flag.Usage = func() {
-		fmt.Fprintf(os.Stderr, "%s version %s\n", os.Args[0], Version)
-		fmt.Fprintln(os.Stderr, "usage:")
+		if len(Version) == 0 {
+			Version = "master"
+		}
+		fmt.Fprintf(os.Stderr, "%s version %s\n\n", os.Args[0], Version)
+		fmt.Fprintf(os.Stderr, "Find more information at https://github.com/blendlabs/template\n\n")
+		fmt.Fprintf(os.Stderr, "Usage:\n")
 		flag.PrintDefaults()
+		fmt.Fprintf(os.Stderr, "\nExample Usage:\n")
+		fmt.Fprintf(os.Stderr, "Read a template file: \"template -f template.yml\"\n")
+		fmt.Fprintf(os.Stderr, "Read a template from stdin: \"echo '{{ .Var \"foo\" }}' | template -f -\"\n")
 	}
 
 	flag.Parse()
@@ -156,12 +163,7 @@ func main() {
 
 	var temp *template.Template
 	var err error
-	if len(templateFile) > 0 {
-		temp, err = template.NewFromFile(templateFile)
-		if err != nil {
-			log.Fatal(err)
-		}
-	} else {
+	if len(templateFile) > 0 && templateFile == "-" {
 		temp = template.New()
 
 		var contents []byte
@@ -170,6 +172,14 @@ func main() {
 			log.Fatal(err)
 		}
 		temp = temp.WithBody(string(contents))
+	} else if len(templateFile) > 0 {
+		temp, err = template.NewFromFile(templateFile)
+		if err != nil {
+			log.Fatal(err)
+		}
+	} else {
+		flag.Usage()
+		os.Exit(1)
 	}
 
 	if len(includes) > 0 {

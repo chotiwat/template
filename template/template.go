@@ -456,8 +456,8 @@ func (t *Template) baseFuncMap() texttemplate.FuncMap {
 			return string(data), err
 		},
 
-		"indent": func(tabCount int, corpus string) string {
-			lines := strings.Split(corpus, "\n")
+		"indent": func(tabCount int, v interface{}) string {
+			lines := strings.Split(fmt.Sprintf("%v", v), "\n")
 			outputLines := make([]string, len(lines))
 
 			var tabs string
@@ -471,8 +471,8 @@ func (t *Template) baseFuncMap() texttemplate.FuncMap {
 			return strings.Join(outputLines, "\n")
 		},
 
-		"indentSpaces": func(spaceCount int, corpus string) string {
-			lines := strings.Split(corpus, "\n")
+		"indentSpaces": func(spaceCount int, v interface{}) string {
+			lines := strings.Split(fmt.Sprintf("%v", v), "\n")
 			outputLines := make([]string, len(lines))
 
 			var spaces string
