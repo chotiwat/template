@@ -95,6 +95,14 @@ func (t *Template) WithVar(key string, value interface{}) *Template {
 	return t
 }
 
+// WithVars reads a map of variables into the template.
+func (t *Template) WithVars(vars map[string]interface{}) *Template {
+	for key, value := range vars {
+		t.SetVar(key, value)
+	}
+	return t
+}
+
 // SetVar sets a var in the template.
 func (t *Template) SetVar(key string, value interface{}) {
 	t.vars[key] = value

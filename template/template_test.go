@@ -572,3 +572,22 @@ meta:
 	assert.Nil(err)
 	assert.NotEmpty(buffer.String())
 }
+
+func TestTemplateWithVars(t *testing.T) {
+	assert := assert.New(t)
+
+	temp := New().WithVars(map[string]interface{}{
+		"foo": "baz",
+		"bar": "buz",
+	})
+	assert.True(temp.HasVar("foo"))
+	assert.True(temp.HasVar("bar"))
+	assert.False(temp.HasVar("baz"))
+	assert.False(temp.HasVar("buz"))
+	val, err := temp.Var("foo")
+	assert.Nil(err)
+	assert.Equal("baz", val)
+	val, err = temp.Var("bar")
+	assert.Nil(err)
+	assert.Equal("buz", val)
+}
