@@ -1,6 +1,6 @@
 all: build
 
-VERSION=v1.6.0
+VERSION=v1.6.1
 GIT_SHA=$(shell git log --pretty=format:'%h' -n 1)
 SHASUMCMD := $(shell command -v sha1sum || command -v shasum; 2> /dev/null)
 
