@@ -16,7 +16,7 @@ import (
 
 	"bytes"
 
-	"github.com/blendlabs/template/template"
+	"github.com/blendlabs/template"
 	"gopkg.in/yaml.v2"
 )
 
