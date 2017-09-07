@@ -39,17 +39,38 @@ You can alternately read from `stdin` by omitting the `-f` flag.
 
 ### `-f <TEMPLATE PATH>`
 
-The `-f` flag specifies an input file. If it is not present, `template` will read from `stdin`.
+The `-f` flag specifies an input file. If in the form `-f -` template will read the file from stdin.
+
+### `-i <TEMPLATE PATH>`
+
+The `-i` flag specifies an addition template file referencable in the master template. 
+
+### `-vars <VARS PATH[.json|(.yml|.yaml|*)]>`
+
+The `-vars` flag specifies an input file with variable definitions. If the filename is `.json` it will be unmarshalled as json, otherwise it will be unmarshalled as yaml.
 
 ### `-var <KEY>=<VALUE>`
 
 The `-var` flag specifies a variable for the template.
 
-### `-num <KEY>=<VALUE>`
-
-The `-num` flag specifies a numeric variable for the template. It is effectively a shorctut for `.Var "<key>" | float`.
+### `-o <OUTPUT PATH>`
+The `-o` flag specifies an output path. If not present, output will be piped to stdout.
 
 ## Template Function Reference
+
+### `.Env`
+
+Env will return an environment variable. It takes the environment variable name as the first parameter. It can take a default value as a second parameter. If no default is specified, and the environment variable is not present, this will cause an error.
+
+```go
+{{ .Env "<var name>" }}
+```
+
+With a default:
+
+```go
+{{ .Env "<var name>" "<default value>" }}
+```
 
 ### `.Var`
 
@@ -66,20 +87,6 @@ With a default:
 ```
 
 Note: `Var` differs from `Env` in that var values can be any type, not just strings.
-
-### `.Env`
-
-Env will return an environment variable. It takes the environment variable name as the first parameter. It can take a default value as a second parameter. If no default is specified, and the environment variable is not present, this will cause an error.
-
-```go
-{{ .Env "<var name>" }}
-```
-
-With a default:
-
-```go
-{{ .Env "<var name>" "<default value>" }}
-```
 
 ### `.File`
 

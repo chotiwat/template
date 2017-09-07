@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"flag"
 	"fmt"
 	"log"
@@ -101,9 +102,16 @@ func loadVarsFile(path string) (map[string]interface{}, error) {
 		return nil, err
 	}
 	output := map[string]interface{}{}
-	err = yaml.Unmarshal(contents, &output)
-	if err != nil {
-		return nil, err
+	if strings.HasSuffix(path, ".json") {
+		err = json.Unmarshal(contents, &output)
+		if err != nil {
+			return nil, err
+		}
+	} else {
+		err = yaml.Unmarshal(contents, &output)
+		if err != nil {
+			return nil, err
+		}
 	}
 	return output, nil
 }
@@ -112,20 +120,17 @@ func main() {
 	var templateFile string
 	flag.StringVar(&templateFile, "f", "", "Template file to process; if \"-\", will read from os.Stdin")
 
+	var includes Includes
+	flag.Var(&includes, "i", "Files to include as sub templates")
+
 	var varsFile string
-	flag.StringVar(&varsFile, "v", "", "Vars file to process")
+	flag.StringVar(&varsFile, "vars", "", "Vars file to process")
 
 	var outFile string
 	flag.StringVar(&outFile, "o", "", "Output file")
 
 	var variables Variables
 	flag.Var(&variables, "var", "Variables in the form --var=foo=bar")
-
-	var numbers Numbers
-	flag.Var(&numbers, "num", "Number variables in the form --num=foo=3.14")
-
-	var includes Includes
-	flag.Var(&includes, "include", "Files to include as sub templates")
 
 	var help bool
 	flag.BoolVar(&help, "help", false, "Shows this usage message")
@@ -144,6 +149,7 @@ func main() {
 		fmt.Fprintf(os.Stderr, "\nExample Usage:\n")
 		fmt.Fprintf(os.Stderr, "Read a template file: \"template -f template.yml\"\n")
 		fmt.Fprintf(os.Stderr, "Read a template from stdin: \"echo '{{ .Var \"foo\" }}' | template -f -\"\n")
+		fmt.Fprintf(os.Stderr, "Specify a variable: template -f config.yml --var=foo=bar\n")
 	}
 
 	flag.Parse()
@@ -206,16 +212,6 @@ func main() {
 	vars := variables.Values()
 	if len(vars) > 0 {
 		for key, value := range vars {
-			temp = temp.WithVar(key, value)
-		}
-	}
-
-	numVars, err := numbers.Values()
-	if err != nil {
-		log.Fatal(err)
-	}
-	if len(numVars) > 0 {
-		for key, value := range numVars {
 			temp = temp.WithVar(key, value)
 		}
 	}
