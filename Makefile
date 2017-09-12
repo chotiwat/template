@@ -9,8 +9,8 @@ TARCMD := $(shell command -v tar || command -v tar; 2> /dev/null)
 build: 
 	mkdir -p ./build/dist/darwin
 	mkdir -p ./build/dist/linux
-	GOOS=darwin GOARCH=amd64 go build -o ./build/dist/darwin/template-darwin-amd64 -ldflags "-X main.Version=${VERSION} -X blendlabs.com/template.GitVersion=${GIT_SHA}" cmd/main.go
-	GOOS=linux GOARCH=amd64 go build -o ./build/dist/linux/template-linux-amd64  -ldflags "-X main.Version=${VERSION} -X blendlabs.com/template.GitVersion=${GIT_SHA}" cmd/main.go
+	GOOS=darwin GOARCH=amd64 go build -o ./build/dist/darwin/template-darwin-amd64 -ldflags "-X main.Version=${VERSION} -X blendlabs.com/template.GitVersion=${GIT_SHA}" template/main.go
+	GOOS=linux GOARCH=amd64 go build -o ./build/dist/linux/template-linux-amd64  -ldflags "-X main.Version=${VERSION} -X blendlabs.com/template.GitVersion=${GIT_SHA}" template/main.go
 	(${SHASUMCMD} ./build/dist/darwin/template-darwin-amd64 | cut -d' ' -f1) > ./build/dist/darwin/template-darwin-amd64.sha1
 	(${SHASUMCMD} ./build/dist/linux/template-linux-amd64 | cut -d' ' -f1) > ./build/dist/linux/template-linux-amd64.sha1
 	${TARCMD} -zcvf ./build/dist/template-darwin-amd64.tar.gz ./build/dist/darwin
