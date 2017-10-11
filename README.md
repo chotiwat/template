@@ -1,6 +1,8 @@
 template
 ========
 
+[![Build Status](https://travis-ci.org/blendlabs/template.svg?branch=master)](https://travis-ci.org/blendlabs/template)
+
 Template is a thin wrapper on `text/template`, the golang templating engine. The primary usecase for the utility is to dynamically modify config templates.
 
 ## Usage
