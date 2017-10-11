@@ -8,8 +8,8 @@ notifications:
   slack:
     rooms:
       - secure: "kHD66NipOT1WksjPCm8a6oOJGCkWkT+AVLgJMBpwLPIP8s+Sff0pF0iA9pJOUAjGjbMowfr0dXUccmStxNmqpCsAlj30z/6Glk8mlSt+qWKnEZU9uM5IWCbbN36qOUheaVoaKbMr2dm35P3ymtEacvMr915VQgrGrbFYqzHx4cwPeJwl753Pvcr3kJ/4EdVoAb4lTDDC3nBFFuxXwpe9PNcyn5mWo+KBDS8CwP4EejEIv4Di+SW8Lk0JcJEcGWD/zhUngltyeYLXJQpcSu+Y+QWI6SW6G3AVqGflCsHgCe2sH8PNxXHwlxYVYjlHVdBTCoVLKzH1LSOp3N+jCSVazVHrrKyV4r5L1Y+bQGkFXEkoUZjkXpK7uNrDLwSnEqdQJlWvQRHDd7GIlEjzLdpZFJBQR3LdzVYbSV6JbNr1IrTLUFbZim13kia3xGoBw0nwG3AQuEGmbQ1a7NwXnST+tGucvj7i94h0CtIx2taCB5/cpd/rdDp50+rGOTmYFe1fveczULPRASz5TbW54H+vnNWTUj6CBv9BQNvT+asEoUiHqS2zIc8z9Yg32qrtYR6Dk5Bkm4W8Zpb+ystwvtolxz/G0a4XLzkmbs0AQT5nP5PDKi2+uywFJwTfvHgg2fkMqn2Y23mdEOwC0QCJIRSNzvZSCiE2w+1KOohOtFCSRSA="
-    on_success: always
-    on_failure: always
+    on_success: change
+    on_failure: change
     template:
       - "%{repository_slug} %{message} %{duration}"
       - "%{author} : (<%{compare_url}|%{commit}>) %{commit_message}"
