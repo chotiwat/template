@@ -22,10 +22,13 @@ import (
 	texttemplate "text/template"
 )
 
+// Vars is a loose type alias to map[string]interface{}
+type Vars = map[string]interface{}
+
 // New creates a new template.
 func New() *Template {
 	temp := &Template{
-		vars: map[string]interface{}{},
+		vars: Vars{},
 		env:  parseEnvVars(os.Environ()),
 	}
 	temp.funcs = temp.baseFuncMap()
@@ -51,7 +54,7 @@ func NewFromFile(filepath string) (*Template, error) {
 type Template struct {
 	name     string
 	body     string
-	vars     map[string]interface{}
+	vars     Vars
 	env      map[string]string
 	includes []string
 	funcs    texttemplate.FuncMap
@@ -96,7 +99,7 @@ func (t *Template) WithVar(key string, value interface{}) *Template {
 }
 
 // WithVars reads a map of variables into the template.
-func (t *Template) WithVars(vars map[string]interface{}) *Template {
+func (t *Template) WithVars(vars Vars) *Template {
 	for key, value := range vars {
 		t.SetVar(key, value)
 	}
